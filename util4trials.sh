@@ -1266,6 +1266,12 @@ if [ "$do_uninstall" == "true" ]; then
     exit 0
 fi
 
+# Check installation
+if [ "$do_chk_install" == "true" ]; then
+    check_installation
+    exit 0
+fi
+
 # Generate env file
 if [ "$flg_generate_env_file" == "true" ]; then
     generate_env_file
