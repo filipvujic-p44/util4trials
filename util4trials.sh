@@ -1,5 +1,5 @@
 #!/bin/bash
-version="v1.0.2"
+version="v1.0.3"
 author="Filip Vujic"
 last_updated="15-Oct-2025"
 repo_owner="filipvujic-p44"
@@ -541,7 +541,7 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			ref_line_number=$(grep -n "ref_carrier*" "$0" | head -n1 | cut -d':' -f1)
 			line_number=$(grep -n "glb_carrier=" "$0" | head -n1 | cut -d':' -f1)
 			if [ "$((line_number - ref_line_number))" -eq 1 ]; then
-				sed -i "${line_number}s/^glb_carrier=.*/glb_carrier=\"$2\"/" "$0"
+				sed -i "${line_number}s/^glb_carrier=.*/glb_carrier=\"${2^^}\"/" "$0"
 				echo "Info: Carrier updated."	
 			shift 1
 			fi
