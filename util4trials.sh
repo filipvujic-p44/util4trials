@@ -1,5 +1,5 @@
 #!/bin/bash
-version="v1.0.1"
+version="v1.0.2"
 author="Filip Vujic"
 last_updated="15-Oct-2025"
 repo_owner="filipvujic-p44"
@@ -49,7 +49,7 @@ Installation:
 
 Options:
 --------
-    util4trials.sh [-v | --version] [-h | --help] [--help-actions-and-envs]
+    util4trials.sh [-v | --version] [-h | --help] [--help-actions]
                [--install] [--install-y] [--uninstall] [--chk-install] [--chk-for-updates] 
                [--auto-chk-for-updates-off] [--auto-chk-for-updates-on] [--generate-env-file]
                [--export-trials] [--update-trials-from-file] [--update-trials-from-name]
@@ -63,7 +63,7 @@ Options (details):
     general:
         -v | --version                    Display script version and author.
         -h | --help                       Display help and usage info.
-        --help-actions-and-envs           Display actions and environments info.
+        --help-actions                    Display actions info.
         --install                         Install script to use from anywhere in terminal.
         --install-y                       Install with preapproved dependencies and run 'gcloud auth login' after installation.
         --uninstall                       Remove changes made during install (except dependencies).
@@ -72,6 +72,25 @@ Options (details):
         --auto-chk-for-updates-off        Turn off automatic check for updates (default state).
         --auto-chk-for-updates-on         Turn on automatic check for updates (checks on every run).
         --generate-env-file               Generate '.env_util4trials' in current folder.
+    
+    setters (this will persist values in script global config):
+        integration:
+            --set-env-name                    Set environment name (int, stg, sbx, eu, us).
+            --set-mode                        Set mode (LTL, TL).
+            --set-interaction                 Set interaction (CARRIER_PUSH, CARRIER_PULL).
+            --set-service                     Set service (RATING, DISPATCH, SHIPMENT_STATUS, IMAGING, AUTH, TELEMETRY)
+            --set-carrier                     Set carrier scac (case insensitive; can be set without using '--carrier' flag).
+        auth:
+            --set-token                       Set auth token.
+            --set-username                    Set username.
+            --set-int-user-id                 Set user id for qa-int.
+            --set-stg-user-id                 Set user id for qa-stage.
+            --set-sbx-user-id                 Set user id for sandbox.
+            --set-eu-user-id                  Set user id for eu-prod.
+            --set-us-user-id                  Set user id for us-prod.
+        trials:
+            --set-trial-file-path             Set path to file containing trial jsons.
+            --set-trial-name                  Set trial name which will be used to update other trials.
 
     actions:
         --export-trials                   Get all trials jsons.
@@ -79,11 +98,11 @@ Options (details):
         --update-trials-from-name         Update trials using a specific trial name.
 
     environment options:
-        int                               GCP qa-integration.
-        stg                               GCP qa-stage.
-        sbx                               GCP sandbox.
-        eu                                GCP eu-production.
-        us                                GCP us-production.
+        int                               qa-integration.
+        stg                               qa-stage.
+        sbx                               sandbox.
+        eu                                eu-production.
+        us                                us-production.
         --int                             Set environment name to int.
         --stg                             Set environment name to stg.
         --sbx                             Set environment name to sbx.
@@ -92,7 +111,7 @@ Options (details):
 
 
     transportation-modes:
-        --ltl                             Set mode to 'LTL' (default value).
+        --ltl                             Set mode to 'LTL'.
         --tl                              Set mode to 'TL'.
         
     service-types:
@@ -105,32 +124,28 @@ Options (details):
 
     interaction-types:
         --carrier-push                    Set interaction to 'CARRIER_PUSH'.
-        --carrier-pull                    Set interaction to 'CARRIER_PULL' (default value).
-
-    carrier:
-        --carrier <carrier_scac>          Set carrier scac (case insensitive; can be set without using '--carrier' flag).
+        --carrier-pull                    Set interaction to 'CARRIER_PULL'.
 
 Usage:
 ------
     util4trials.sh (general-option | [transportation-mode] [interaction-type] [--carrier] scac service-type action)
-    util4trials.sh abfs --imaging --compare lcl us
+    util4trials.sh abfs --ltl --rating --int --export-trials
     util4trials.sh --generate-env-file
-    util4trials.sh --tl --rating --download int gtjn
-    util4trials.sh --carrier-pull --dispatch --carrier EXLA --update lcl pg
-    util4trials.sh --tracking --carrier gtjn --update pg gh
+    util4trials.sh --tl --telemetry --stg --update-trials-from-name 'trial_name'
+    util4trials.sh --update-trials-from-file 'file_path'
+    util4trials.sh --set-carrier abfs --set-int-user-id 123
 
 Notes:
 ------
     - Tested on WSL Debian 13.1
-    - Default mode is 'LTL', default interaction is 'CARRIER_PULL'.
     - Carrier can be specified without using '--carrier' flag and is case insensitive.
     - Value by priority (highest->lowest): flags->env_file->internal
 EOL
 )
 
 # Modes text
-actions_and_envs_text=$(cat <<EOL
-ACTIONS AND ENVIRONMENTS HELP:
+actions_text=$(cat <<EOL
+ACTIONS HELP:
 -----------
 
 Options:
@@ -143,11 +158,11 @@ Options:
 Usage:
 ------
     util4trials.sh (general-option | [transportation-mode] [interaction-type] [--carrier] scac service-type action)
-    util4trials.sh abfs --imaging --compare lcl us
+    util4trials.sh abfs --ltl --rating --int --export-trials
     util4trials.sh --generate-env-file
-    util4trials.sh --tl --rating --download int gtjn
-    util4trials.sh --carrier-pull --dispatch --carrier EXLA --update lcl pg
-    util4trials.sh --tracking --carrier gtjn --update pg gh
+    util4trials.sh --tl --telemetry --stg --update-trials-from-name 'trial_name'
+    util4trials.sh --update-trials-from-file 'file_path'
+    util4trials.sh --set-carrier abfs --set-int-user-id 123
 
 EOL
 )
@@ -174,30 +189,41 @@ flg_export_trials=false
 flg_update_trials_from_file=false
 flg_update_trials_from_name=false
 
-gcp_pg_base_url="gs://p44-datafeed-pipeline/qa-int/src"
 qa_int_api_base_url="https://na12.api.qa-integration.p-44.com/onramp-connection-manager-gateway/trial"
-gcp_qa_stage_base_url="gs://p44-staging-us-central1-data-feed-plan-definitions-staging/qa-stage/src"
-gcp_sandbox_base_url="gs://p44-sandbox-us-data-feed-plan-definitions/sandbox/src"
-gcp_eu_prod_base_url="gs://p44-production-eu-data-feed-plan-definitions/production-eu/src"
-gcp_us_prod_base_url="gs://data-feed-plan-definitions-prod-prod-us-central1-582378/production/src"
+qa_stage_api_base_url="https://na12.api.qa-stage.p-44.com/onramp-connection-manager-gateway/trial"
+sandbox_api_base_url="https://na12.api.sandbox.p-44.com/onramp-connection-manager-gateway/trial"
+eu_prod_api_base_url="https://eu12.api.project44.com/onramp-connection-manager-gateway/trial"
+us_prod_api_base_url="https://na12.api.project44.com/onramp-connection-manager-gateway/trial"
 
 #ref_token
-glb_token="eyJraWQiOiJZVnhpTDBrVThRZGdSOWN5TjZDeCIsImFsZyI6IlJTMjU2In0.eyJjdXN0b21lcklkcFJvbGVzIjpbIkJhc2ljIiwiTGVhZCIsImx0bC1hZG1pbiIsImNhcnJpZXItdGVuYW50LWRlbGV0ZXIiLCJzaGlwcGVyLXRlbmFudC1kZWxldGVyIiwidGVuYW50LW5ldHdvcmstcm9sZS11cGRhdGVyIl0sImdpdmVuTmFtZSI6IkZpbGlwIiwiZmFtaWx5TmFtZSI6IlZ1amljIiwidGVuYW50SWQiOiIyNTYiLCJjb21wYW55VWlkIjoiZWVmZmZmNmEtNTQ3Ny00ZGI2LWI1ZGMtYTVkYTQ1M2Q3OGFmIiwibGFrZUlkIjoiMTY4MDYwNDQ2MzU3NSIsImF1dGhJZHBzIjpbIjBvYXc5NGpudXJ1ZHpnbjU4MGg3Il0sImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3NjA1MjA4MTgsImlzcyI6Imh0dHBzOi8vbmExMi5hcGkucWEtaW50ZWdyYXRpb24ucC00NC5jb20iLCJzdWIiOiJmaWxpcC52dWppY0Bwcm9qZWN0NDQuY29tIiwiZXhwIjoxNzYwNTY0MDE3LCJqdGkiOiJlN2QxOWEyZS00YmFhLTQ5ZWEtOWQ0My02ZGVmMzExNGIzY2QifQ.HpLOyY11IV1N3pv7CcGDBIHYeriByCB4y7K_AT64hD_YpKITs0tIVK92_yELIVFAZ5ZpSwQeHqk21csWS6bvF3FMAt2MUxCpJEWivVaBgXKa8LlSRAWN4uL-j6EegTVaJuvJFHiTqsTECWYR4p88uQMENfLbUbvEwopHvRdmBNpuFj_oOlHscARYKeA5ztoaLVTCssRzuYap_PLaWUJZT1rXpPtERm19JDcx2uazgtQNd5d1s_7wkFmGQoL32Zi4LmcXBlAhsbgL3vzPgzCA8u9S-VxkSgP96E98yMzli77O_ymXTBY_pG5ODS9ggbMffdiPyv7fnPuZn7G6UU6m1Q"
+glb_token=""
 #ref_username
-glb_username="filip.vujic@project44.com"
-#ref_env_id
-glb_env_user_id="1680604463575"
+glb_username=""
+
+#ref_env_name
+glb_env_name=""
+#ref_int_user_id
+glb_int_user_id=""
+#ref_stg_user_id
+glb_stg_user_id=""
+#ref_sbx_user_id
+glb_sbx_user_id=""
+#ref_eu_user_id
+glb_eu_user_id=""
+#ref_us_user_id
+glb_us_user_id=""
+
 glb_valid_env_name_values=("int" "stg" "sbx" "eu" "us")
 #ref_env_name
-glb_env_name="int"
+glb_env_name=""
 #ref_mode
 glb_mode="LTL"
 #ref_service
-glb_service="RATING"
+glb_service=""
 #ref_interaction
-glb_interaction="CARRIER_PULL"
+glb_interaction=""
 #ref_carrier
-glb_carrier="ABFS"
+glb_carrier=""
 
 glb_trials_file_path=""
 glb_trial_name=""
@@ -217,28 +243,28 @@ if [ -e ".env_util4trials" ]; then
     # Set URLs from .env
 
     # Load qa int base URL value
-    if [ ! -z "$QA_INT_BASE_URL" ]; then
-        qa_int_base_url="$QA_INT_BASE_URL"
+    if [ ! -z "$QA_INT_API_BASE_URL" ]; then
+        qa_int_api_base_url="$QA_INT_API_BASE_URL"
     fi
 
         # Load sandbox base URL value
-    if [ ! -z "$QA_STAGE_BASE_URL" ]; then
-        qa_stage_base_url="$QA_STAGE_BASE_URL"
+    if [ ! -z "$QA_STAGE_API_BASE_URL" ]; then
+        qa_stage_api_base_url="$QA_STAGE_API_BASE_URL"
     fi
 
     # Load sandbox base URL value
-    if [ ! -z "$SANDBOX_BASE_URL" ]; then
-        sandbox_base_url="$SANDBOX_BASE_URL"
+    if [ ! -z "$SANDBOX_API_BASE_URL" ]; then
+        sandbox_api_base_url="$SANDBOX_API_BASE_URL"
     fi
 
         # Load eu prod base URL value
-    if [ ! -z "$EU_PROD_BASE_URL" ]; then
-        eu_prod_base_url="$EU_PROD_BASE_URL"
+    if [ ! -z "$EU_PROD_API_BASE_URL" ]; then
+        eu_prod_api_base_url="$EU_PROD_API_BASE_URL"
     fi
 
     # Load us prod base URL value
-    if [ ! -z "$US_PROD_BASE_URL" ]; then
-        us_prod_base_url="$US_PROD_BASE_URL"
+    if [ ! -z "$US_PROD_API_BASE_URL" ]; then
+        us_prod_api_base_url="$US_PROD_API_BASE_URL"
     fi
 
     # Set auth details from .env
@@ -253,9 +279,29 @@ if [ -e ".env_util4trials" ]; then
         glb_username="$USERNAME"
     fi
 
-    # Load environment user ID value
-    if [ ! -z "$ENVIRONMENT_USER_ID" ]; then
-        glb_env_user_id="$ENVIRONMENT_USER_ID"
+    # Load qa-int user ID value
+    if [ ! -z "$INT_USER_ID" ]; then
+        glb_int_user_id="$INT_USER_ID"
+    fi
+
+    # Load qa-stage user ID value
+    if [ ! -z "$STG_USER_ID" ]; then
+        glb_stg_user_id="$STG_USER_ID"
+    fi
+
+    # Load sandbox user ID value
+    if [ ! -z "$SBX_USER_ID" ]; then
+        glb_sbx_user_id="$SBX_USER_ID"
+    fi
+
+    # Load eu-prod user ID value
+    if [ ! -z "$EU_USER_ID" ]; then
+        glb_eu_user_id="$EU_USER_ID"
+    fi
+
+    # Load us-prod user ID value
+    if [ ! -z "$US_USER_ID" ]; then
+        glb_us_user_id="$US_USER_ID"
     fi
 
     # Set integration details from .env
@@ -311,8 +357,8 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
             echo "$help_text"
             exit 0
             ;;
-        --help-actions-and-envs)
-            echo "$actions_and_envs_text"
+        --help-actions)
+            echo "$actions_text"
             exit 0
             ;;
         --install)
@@ -354,7 +400,11 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
         -c | --config)
 			echo "Token ------------------- $glb_token"
             echo "Username ---------------- $glb_username"
-            echo "Env user id ------------- $glb_env_user_id"
+            echo "QA-int user id ---------- $glb_int_user_id"
+            echo "QA-stage user id -------- $glb_stg_user_id"
+            echo "Sandbox user id --------- $glb_sbx_user_id"
+            echo "EU-prod user id --------- $glb_eu_user_id"
+            echo "US-prod user id --------- $glb_us_user_id"
             echo "Environment ------------- $glb_env_name"
             echo "Mode -------------------- $glb_mode"
             echo "Service ----------------- $glb_service"
@@ -382,12 +432,48 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			shift 1
 			fi
 			;;
-        --set-env-id)
-			ref_line_number=$(grep -n "ref_env_id*" "$0" | head -n1 | cut -d':' -f1)
-			line_number=$(grep -n "glb_env_user_id=" "$0" | head -n1 | cut -d':' -f1)
+        --set-int-user-id)
+			ref_line_number=$(grep -n "ref_int_user_id*" "$0" | head -n1 | cut -d':' -f1)
+			line_number=$(grep -n "glb_int_user_id=" "$0" | head -n1 | cut -d':' -f1)
 			if [ "$((line_number - ref_line_number))" -eq 1 ]; then
-				sed -i "${line_number}s/^glb_env_user_id=.*/glb_env_user_id=\"$2\"/" "$0"
-				echo "Info: Environment user ID updated."	
+				sed -i "${line_number}s/^glb_int_user_id=.*/glb_int_user_id=\"$2\"/" "$0"
+				echo "Info: QA-int user ID updated."	
+			shift 1
+			fi
+			;;
+        --set-stg-user-id)
+			ref_line_number=$(grep -n "ref_stg_user_id*" "$0" | head -n1 | cut -d':' -f1)
+			line_number=$(grep -n "glb_stg_user_id=" "$0" | head -n1 | cut -d':' -f1)
+			if [ "$((line_number - ref_line_number))" -eq 1 ]; then
+				sed -i "${line_number}s/^glb_stg_user_id=.*/glb_stg_user_id=\"$2\"/" "$0"
+				echo "Info: QA-stage user ID updated."	
+			shift 1
+			fi
+			;;
+        --set-sbx-user-id)
+			ref_line_number=$(grep -n "ref_sbx_user_id*" "$0" | head -n1 | cut -d':' -f1)
+			line_number=$(grep -n "glb_sbx_user_id=" "$0" | head -n1 | cut -d':' -f1)
+			if [ "$((line_number - ref_line_number))" -eq 1 ]; then
+				sed -i "${line_number}s/^glb_sbx_user_id=.*/glb_sbx_user_id=\"$2\"/" "$0"
+				echo "Info: Sandbox user ID updated."	
+			shift 1
+			fi
+			;;
+        --set-eu-user-id)
+			ref_line_number=$(grep -n "ref_eu_user_id*" "$0" | head -n1 | cut -d':' -f1)
+			line_number=$(grep -n "glb_eu_user_id=" "$0" | head -n1 | cut -d':' -f1)
+			if [ "$((line_number - ref_line_number))" -eq 1 ]; then
+				sed -i "${line_number}s/^glb_eu_user_id=.*/glb_eu_user_id=\"$2\"/" "$0"
+				echo "Info: EU-prod user ID updated."	
+			shift 1
+			fi
+			;;
+        --set-us-user-id)
+			ref_line_number=$(grep -n "ref_us_user_id*" "$0" | head -n1 | cut -d':' -f1)
+			line_number=$(grep -n "glb_us_user_id=" "$0" | head -n1 | cut -d':' -f1)
+			if [ "$((line_number - ref_line_number))" -eq 1 ]; then
+				sed -i "${line_number}s/^glb_us_user_id=.*/glb_us_user_id=\"$2\"/" "$0"
+				echo "Info: US-prod user ID updated."	
 			shift 1
 			fi
 			;;
@@ -932,9 +1018,10 @@ autocomplete_util4trials() {
     _init_completion || return
 
     local options="--version -v --chk-for-updates --auto-chk-for-updates-off --auto-chk-for-updates-on "
-    options+="--help -h --help-actions-and-envs --install --install-y --uninstall "
-    options+="--chk-install --generate-env-file "
-    options+="--set-token --set-username --set-env-user-id --set-env-name --int --stg --sbx --eu --us "
+    options+="--help -h --help-actions --install --install-y --uninstall "
+    options+="--chk-install --generate-env-file --set-token --set-username "
+    options+="--set-int-user-id --set-stg-user-id --set-sbx-user-id --set-eu-user-id --set-us-user-id "
+    options+="--set-env-name --int --stg --sbx --eu --us "
     options+="--set-mode --set-interaction --set-service --set-carrier --set-trials-file-path --set-trial-name "
     options+="--export-trials --update-trials-from-file --update-trials-from-name "
     options+="--ltl --tl --all-modes --carrier-push --carrier-pull "
@@ -984,19 +1071,27 @@ generate_env_file() {
 # github="$repo"
 
 # URLS (defaults: already set)
-QA_INT_BASE_URL=""
-QA_STAGE_BASE_URL=""
-SANDBOX_BASE_URL=""
-EU_PROD_BASE_URL=""
-US_PROD_BASE_URL=""
+QA_INT_API_BASE_URL=""
+QA_STAGE_API_BASE_URL=""
+SANDBOX_API_BASE_URL=""
+EU_PROD_API_BASE_URL=""
+US_PROD_API_BASE_URL=""
 
 # AUTH DETAILS
 # Token
 TOKEN=""
 # Username
 USERNAME=""
-# Environment ID
-ENVIRONMENT_USER_ID=""
+# QA-int ID
+INT_USER_ID=""
+# QA-stage ID
+STG_USER_ID=""
+# Sandbox ID
+SBX_USER_ID=""
+# EU-prod ID
+EU_USER_ID=""
+# US-prod ID
+US_USER_ID=""
 
 # INTEGRATION DETAILS (defaults: MODE=LTL, INTERACTION=CARRIER_PULL)
 # Fields can be overridden by flags
@@ -1006,7 +1101,7 @@ ENVIRONMENT_NAME=""
 MODE=""
 # Interactions = [ CARRIER_PULL, CARRIER_PUSH ]
 INTERACTION=""
-# Services = [ AUTHENTICATION_RENEWAL, RATING, DISPATCH, TRACKING, IMAGING ]
+# Services = [ AUTHENTICATION_RENEWAL, RATING, DISPATCH, TRACKING, IMAGING, TELEMETRY ]
 SERVICE="MY_SERVICE"
 # Carrier scac
 CARRIER="MY_SCAC"
@@ -1030,7 +1125,7 @@ EOL
 
 
 
-# Return corresponding GCP base url based on passed environment name
+# Return corresponding API base url based on passed environment name
 # $1 - environment name
 resolve_env_to_api_base_url() {
     # Check arg count and npe, assign values
@@ -1039,23 +1134,56 @@ resolve_env_to_api_base_url() {
     # Function logic
     result=""
     case "$env_name" in
-        "pg")
-            result="$gcp_pg_base_url"
-            ;;
         "int")
             result="$qa_int_api_base_url"
             ;;
         "stg")
-            result="$gcp_qa_stage_base_url" 
+            result="$qa_stage_api_base_url" 
             ;;
         "sbx")
-            result="$gcp_sandbox_base_url" 
+            result="$sandbox_api_base_url" 
             ;;
         "eu")
-            result="$gcp_eu_prod_base_url" 
+            result="$eu_prod_api_base_url" 
             ;;
         "us")
-            result="$gcp_us_prod_base_url" 
+            result="$us_prod_api_base_url" 
+            ;;
+        *)
+            :
+            ;;
+    esac
+    if [ -z "$result" ]; then
+        echo "Error: Environment '$env_name' not recognized!" >&2
+        return 1
+    else
+        echo "$result"
+    fi
+}
+
+# Return corresponding environment user id based on passed environment name
+# $1 - environment name
+resolve_env_to_user_id() {
+    # Check arg count and npe, assign values
+    check_args 1 "$@"
+    local env_name=$1
+    # Function logic
+    result=""
+    case "$env_name" in
+        "int")
+            result="$glb_int_user_id"
+            ;;
+        "stg")
+            result="$glb_stg_user_id" 
+            ;;
+        "sbx")
+            result="$glb_sbx_user_id" 
+            ;;
+        "eu")
+            result="$glb_eu_user_id" 
+            ;;
+        "us")
+            result="$glb_us_user_id" 
             ;;
         *)
             :
