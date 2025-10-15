@@ -7,7 +7,7 @@ repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
 
 ###################################### TO-DO ##############################################
-# - fix updating trials from file
+# - 
 ###########################################################################################
 
 
@@ -182,7 +182,7 @@ gcp_eu_prod_base_url="gs://p44-production-eu-data-feed-plan-definitions/producti
 gcp_us_prod_base_url="gs://data-feed-plan-definitions-prod-prod-us-central1-582378/production/src"
 
 #ref_token
-glb_token="eyJraWQiOiJZVnhpTDBrVThRZGdSOWN5TjZDeCIsImFsZyI6IlJTMjU2In0.eyJjdXN0b21lcklkcFJvbGVzIjpbIkxlYWQiLCJCYXNpYyIsImx0bC1hZG1pbiIsImNhcnJpZXItdGVuYW50LWRlbGV0ZXIiLCJzaGlwcGVyLXRlbmFudC1kZWxldGVyIiwidGVuYW50LW5ldHdvcmstcm9sZS11cGRhdGVyIl0sImdpdmVuTmFtZSI6IkZpbGlwIiwiZmFtaWx5TmFtZSI6IlZ1amljIiwidGVuYW50SWQiOiIyNTYiLCJjb21wYW55VWlkIjoiZWVmZmZmNmEtNTQ3Ny00ZGI2LWI1ZGMtYTVkYTQ1M2Q3OGFmIiwibGFrZUlkIjoiMTY4MDYwNDQ2MzU3NSIsImF1dGhJZHBzIjpbIjBvYXc5NGpudXJ1ZHpnbjU4MGg3Il0sImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3NjAzNDE0MDYsImlzcyI6Imh0dHBzOi8vbmExMi5hcGkucWEtaW50ZWdyYXRpb24ucC00NC5jb20iLCJzdWIiOiJmaWxpcC52dWppY0Bwcm9qZWN0NDQuY29tIiwiZXhwIjoxNzYwMzg0NjA1LCJqdGkiOiI3ZDViODA2YS02N2I5LTRlMjYtYmUwYi0wNzJlOWVjMDY4NjEifQ.NSkLy8Q5m3SWvm-zR4Xx71kIFu-4t8a-_PeNXF7afy5YK7kdefI87JGtcuz2795Vu867uZAF89mNG7SfJGd9CYGL3F5Pp1pGCM_1hVQSRYEG_q1mF-Ja3B52K9m8HC1vGTYlwpTdyMcbAuKj79L08POoTnQ5cK9qEP_izwUCjawzkkwz_Pb1Nwjkwh65oPBRxH68R5NGZALCbOBd-kznftw0Faos40phkAWTUthG6UDsBsmVH5w0G-vgMYm0TNVitxBvYEVGuFz_cUS04o6TiE9R12vIDQvZ6TTF20ohpXSaVEKtqY_jN180f6aYe1N76Tdn5HC95bbgD7pHNN4WXA"
+glb_token="eyJraWQiOiJZVnhpTDBrVThRZGdSOWN5TjZDeCIsImFsZyI6IlJTMjU2In0.eyJjdXN0b21lcklkcFJvbGVzIjpbIkJhc2ljIiwiTGVhZCIsImx0bC1hZG1pbiIsImNhcnJpZXItdGVuYW50LWRlbGV0ZXIiLCJzaGlwcGVyLXRlbmFudC1kZWxldGVyIiwidGVuYW50LW5ldHdvcmstcm9sZS11cGRhdGVyIl0sImdpdmVuTmFtZSI6IkZpbGlwIiwiZmFtaWx5TmFtZSI6IlZ1amljIiwidGVuYW50SWQiOiIyNTYiLCJjb21wYW55VWlkIjoiZWVmZmZmNmEtNTQ3Ny00ZGI2LWI1ZGMtYTVkYTQ1M2Q3OGFmIiwibGFrZUlkIjoiMTY4MDYwNDQ2MzU3NSIsImF1dGhJZHBzIjpbIjBvYXc5NGpudXJ1ZHpnbjU4MGg3Il0sImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3NjA1MjA4MTgsImlzcyI6Imh0dHBzOi8vbmExMi5hcGkucWEtaW50ZWdyYXRpb24ucC00NC5jb20iLCJzdWIiOiJmaWxpcC52dWppY0Bwcm9qZWN0NDQuY29tIiwiZXhwIjoxNzYwNTY0MDE3LCJqdGkiOiJlN2QxOWEyZS00YmFhLTQ5ZWEtOWQ0My02ZGVmMzExNGIzY2QifQ.HpLOyY11IV1N3pv7CcGDBIHYeriByCB4y7K_AT64hD_YpKITs0tIVK92_yELIVFAZ5ZpSwQeHqk21csWS6bvF3FMAt2MUxCpJEWivVaBgXKa8LlSRAWN4uL-j6EegTVaJuvJFHiTqsTECWYR4p88uQMENfLbUbvEwopHvRdmBNpuFj_oOlHscARYKeA5ztoaLVTCssRzuYap_PLaWUJZT1rXpPtERm19JDcx2uazgtQNd5d1s_7wkFmGQoL32Zi4LmcXBlAhsbgL3vzPgzCA8u9S-VxkSgP96E98yMzli77O_ymXTBY_pG5ODS9ggbMffdiPyv7fnPuZn7G6UU6m1Q"
 #ref_username
 glb_username="filip.vujic@project44.com"
 #ref_env_id
@@ -193,11 +193,11 @@ glb_env_name="int"
 #ref_mode
 glb_mode="LTL"
 #ref_service
-glb_service=""
+glb_service="RATING"
 #ref_interaction
 glb_interaction="CARRIER_PULL"
 #ref_carrier
-glb_carrier=""
+glb_carrier="ABFS"
 
 glb_trials_file_path=""
 glb_trial_name=""
@@ -1195,7 +1195,7 @@ update_trials_from_file() {
     echo "$trials_response" > "$glb_trials_backup_file_name"
     echo "Creating a backup of trials in file '$glb_trials_backup_file_name'."
 
-    mapfile -t trial_jsons < <(jq -c '.[]' <<< "$trials_response")
+    mapfile -t trial_jsons < <(jq -c '.[]' "$trials_file_path")
 
     for trial in "${trial_jsons[@]}"; do
         trial_id=$(jq -r '.trialId' <<< "$trial")
