@@ -1,7 +1,7 @@
 #!/bin/bash
 version="v1.0.1"
 author="Filip Vujic"
-last_updated="14-Oct-2025"
+last_updated="15-Oct-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
