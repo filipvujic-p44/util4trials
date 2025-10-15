@@ -1,7 +1,7 @@
 #!/bin/bash
-version="v1.0.0"
+version="v1.0.1"
 author="Filip Vujic"
-last_updated="14-Oct-2025"
+last_updated="15-Oct-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
@@ -52,7 +52,7 @@ Options:
     util4trials.sh [-v | --version] [-h | --help] [--help-actions-and-envs]
                [--install] [--install-y] [--uninstall] [--chk-install] [--chk-for-updates] 
                [--auto-chk-for-updates-off] [--auto-chk-for-updates-on] [--generate-env-file]
-               [--get-trials] [--update-trials-from-file] [--update-trials-from-name]
+               [--export-trials] [--update-trials-from-file] [--update-trials-from-name]
                [--int] [--stg] [--sbx] [--eu] [--us]
                [--ltl] [--tl] [--carrier-push] [--carrier-pull]
                [--auth] [--rating] [--dispatch] [--tracking] [--imaging] [--telemetry]
@@ -74,7 +74,7 @@ Options (details):
         --generate-env-file               Generate '.env_util4trials' in current folder.
 
     actions:
-        --get-trials                      Get all trials jsons.
+        --export-trials                   Get all trials jsons.
         --update-trials-from-file         Update trials using input file containing trial jsons.
         --update-trials-from-name         Update trials using a specific trial name.
 
@@ -136,7 +136,7 @@ ACTIONS AND ENVIRONMENTS HELP:
 Options:
 --------
     actions:
-        --get-trials                      Get all trials jsons.
+        --export-trials                   Get all trials jsons.
         --update-trials-from-file         Update trials using input file containing trial jsons.
         --update-trials-from-name         Update trials using a specific trial name.
 
@@ -170,7 +170,7 @@ do_chk_install_=false
 flg_chk_for_updates=false
 flg_generate_env_file=false
 
-flg_get_trials=false
+flg_export_trials=false
 flg_update_trials_from_file=false
 flg_update_trials_from_name=false
 
@@ -182,7 +182,7 @@ gcp_eu_prod_base_url="gs://p44-production-eu-data-feed-plan-definitions/producti
 gcp_us_prod_base_url="gs://data-feed-plan-definitions-prod-prod-us-central1-582378/production/src"
 
 #ref_token
-glb_token="eyJraWQiOiJZVnhpTDBrVThRZGdSOWN5TjZDeCIsImFsZyI6IlJTMjU2In0.eyJjdXN0b21lcklkcFJvbGVzIjpbIkxlYWQiLCJCYXNpYyIsImx0bC1hZG1pbiIsImNhcnJpZXItdGVuYW50LWRlbGV0ZXIiLCJzaGlwcGVyLXRlbmFudC1kZWxldGVyIiwidGVuYW50LW5ldHdvcmstcm9sZS11cGRhdGVyIl0sImdpdmVuTmFtZSI6IkZpbGlwIiwiZmFtaWx5TmFtZSI6IlZ1amljIiwidGVuYW50SWQiOiIyNTYiLCJjb21wYW55VWlkIjoiZWVmZmZmNmEtNTQ3Ny00ZGI2LWI1ZGMtYTVkYTQ1M2Q3OGFmIiwibGFrZUlkIjoiMTY4MDYwNDQ2MzU3NSIsImF1dGhJZHBzIjpbIjBvYXc5NGpudXJ1ZHpnbjU4MGg3Il0sImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3NjAzNDE0MDYsImlzcyI6Imh0dHBzOi8vbmExMi5hcGkucWEtaW50ZWdyYXRpb24ucC00NC5jb20iLCJzdWIiOiJmaWxpcC52dWppY0Bwcm9qZWN0NDQuY29tIiwiZXhwIjoxNzYwMzg0NjA1LCJqdGkiOiI3ZDViODA2YS02N2I5LTRlMjYtYmUwYi0wNzJlOWVjMDY4NjEifQ.NSkLy8Q5m3SWvm-zR4Xx71kIFu-4t8a-_PeNXF7afy5YK7kdefI87JGtcuz2795Vu867uZAF89mNG7SfJGd9CYGL3F5Pp1pGCM_1hVQSRYEG_q1mF-Ja3B52K9m8HC1vGTYlwpTdyMcbAuKj79L08POoTnQ5cK9qEP_izwUCjawzkkwz_Pb1Nwjkwh65oPBRxH68R5NGZALCbOBd-kznftw0Faos40phkAWTUthG6UDsBsmVH5w0G-vgMYm0TNVitxBvYEVGuFz_cUS04o6TiE9R12vIDQvZ6TTF20ohpXSaVEKtqY_jN180f6aYe1N76Tdn5HC95bbgD7pHNN4WXA"
+glb_token="eyJraWQiOiJZVnhpTDBrVThRZGdSOWN5TjZDeCIsImFsZyI6IlJTMjU2In0.eyJjdXN0b21lcklkcFJvbGVzIjpbIkJhc2ljIiwiTGVhZCIsImx0bC1hZG1pbiIsImNhcnJpZXItdGVuYW50LWRlbGV0ZXIiLCJzaGlwcGVyLXRlbmFudC1kZWxldGVyIiwidGVuYW50LW5ldHdvcmstcm9sZS11cGRhdGVyIl0sImdpdmVuTmFtZSI6IkZpbGlwIiwiZmFtaWx5TmFtZSI6IlZ1amljIiwidGVuYW50SWQiOiIyNTYiLCJjb21wYW55VWlkIjoiZWVmZmZmNmEtNTQ3Ny00ZGI2LWI1ZGMtYTVkYTQ1M2Q3OGFmIiwibGFrZUlkIjoiMTY4MDYwNDQ2MzU3NSIsImF1dGhJZHBzIjpbIjBvYXc5NGpudXJ1ZHpnbjU4MGg3Il0sImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3NjA1MjA4MTgsImlzcyI6Imh0dHBzOi8vbmExMi5hcGkucWEtaW50ZWdyYXRpb24ucC00NC5jb20iLCJzdWIiOiJmaWxpcC52dWppY0Bwcm9qZWN0NDQuY29tIiwiZXhwIjoxNzYwNTY0MDE3LCJqdGkiOiJlN2QxOWEyZS00YmFhLTQ5ZWEtOWQ0My02ZGVmMzExNGIzY2QifQ.HpLOyY11IV1N3pv7CcGDBIHYeriByCB4y7K_AT64hD_YpKITs0tIVK92_yELIVFAZ5ZpSwQeHqk21csWS6bvF3FMAt2MUxCpJEWivVaBgXKa8LlSRAWN4uL-j6EegTVaJuvJFHiTqsTECWYR4p88uQMENfLbUbvEwopHvRdmBNpuFj_oOlHscARYKeA5ztoaLVTCssRzuYap_PLaWUJZT1rXpPtERm19JDcx2uazgtQNd5d1s_7wkFmGQoL32Zi4LmcXBlAhsbgL3vzPgzCA8u9S-VxkSgP96E98yMzli77O_ymXTBY_pG5ODS9ggbMffdiPyv7fnPuZn7G6UU6m1Q"
 #ref_username
 glb_username="filip.vujic@project44.com"
 #ref_env_id
@@ -193,14 +193,16 @@ glb_env_name="int"
 #ref_mode
 glb_mode="LTL"
 #ref_service
-glb_service=""
+glb_service="RATING"
 #ref_interaction
 glb_interaction="CARRIER_PULL"
 #ref_carrier
-glb_carrier=""
+glb_carrier="ABFS"
 
 glb_trials_file_path=""
 glb_trial_name=""
+glb_trials_backup_file_name="trials_backup.json"
+glb_trials_export_file_name="trials.json"
 
 # Check if any args are passed to the script
 if [ ! -z "$1" ]; then
@@ -313,10 +315,6 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
             echo "$actions_and_envs_text"
             exit 0
             ;;
-        --help-gcloud-cli)
-            echo "$gcloud_cli_text"
-            exit 0
-            ;;
         --install)
             do_install=true
             ;;
@@ -408,18 +406,23 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			;;
         --int)
             glb_env_name="int"
+            echo "Info: Environment set to 'int'."	
             ;;
         --stg)
             glb_env_name="stg"
+            echo "Info: Environment set to 'stg'."	
             ;;
         --sbx)
             glb_env_name="sbx"
+            echo "Info: Environment set to 'sbx'."	
             ;;
         --eu)
             glb_env_name="eu"
+            echo "Info: Environment set to 'eu'."	
             ;;
         --us)
             glb_env_name="us"
+            echo "Info: Environment set to 'us'."	
             ;;
         --set-mode)
 			ref_line_number=$(grep -n "ref_mode*" "$0" | head -n1 | cut -d':' -f1)
@@ -457,8 +460,8 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			shift 1
 			fi
 			;;
-        --get-trials)
-            flg_get_trials=true
+        --export-trials)
+            flg_export_trials=true
             # glb_env_name="${2}"
             # shift 1
             ;;
@@ -933,7 +936,7 @@ autocomplete_util4trials() {
     options+="--chk-install --generate-env-file "
     options+="--set-token --set-username --set-env-user-id --set-env-name --int --stg --sbx --eu --us "
     options+="--set-mode --set-interaction --set-service --set-carrier --set-trials-file-path --set-trial-name "
-    options+="--get-trials --update-trials-from-file --update-trials-from-name "
+    options+="--export-trials --update-trials-from-file --update-trials-from-name "
     options+="--ltl --tl --all-modes --carrier-push --carrier-pull "
     options+="--auth --rating --dispatch --tracking --imaging --telemetry --carrier"
 
@@ -949,7 +952,7 @@ autocomplete_util4trials() {
     elif [[ "\${COMP_WORDS[@]} " =~ " --set-service " ]]; then
         local env_options=("RATING" "DISPATCH" "SHIPMENT_STATUS" "IMAGING" "AUTHENTICATION_RENEWAL" "TELEMETRY")
         COMPREPLY=(\$(compgen -W "\${env_options[*]}" -- "\${cur}"))
-    elif [[ " \${COMP_WORDS[@]} " =~ " --set-trials-file-path " ]]; then
+    elif [[ " \${COMP_WORDS[@]} " =~ " --set-trials-file-path " || " \${COMP_WORDS[@]} " =~ " --update-trials-from-file " ]]; then
         # Use compgen with proper quoting and readarray to handle spaces in filenames
         readarray -t COMPREPLY < <(compgen -f -- "\$cur" | grep -v '^-' )
     else
@@ -1066,14 +1069,6 @@ resolve_env_to_api_base_url() {
     fi
 }
 
-
-
-###################################################################################################
-###################################### Implemented action functions ###############################
-###################################################################################################
-
-
-
 # Extract id, display name and description from file
 # $1 - input file containing json response of trials
 extract_trial_values_from_file() {
@@ -1172,6 +1167,22 @@ get_trials_full_info() {
     done | jq -s '.'  # Combine all full trials into a JSON array
 }
 
+
+
+###################################################################################################
+###################################### Implemented action functions ###############################
+###################################################################################################
+
+
+
+# Download all trials and export to file
+export_trials_to_file() {
+    echo "Info: Downloading trials data..."
+    local response=$(get_trials_full_info)
+    echo "Info: Exporting trials to file '$glb_trials_export_file_name'..."
+    echo "$response" > "$glb_trials_export_file_name"
+}
+
 # Update all trials using input file
 # $1 - input file path
 update_trials_from_file() {
@@ -1181,10 +1192,10 @@ update_trials_from_file() {
     # Requirement checks
     # Function logic
     local trials_response=$(get_trials_full_info)
-    echo "$trials_response" > trials_backup.txt
-    echo "Creating a backup of trials in file 'trials_backup.txt'."
+    echo "$trials_response" > "$glb_trials_backup_file_name"
+    echo "Creating a backup of trials in file '$glb_trials_backup_file_name'."
 
-    mapfile -t trial_jsons < <(jq -c '.[]' <<< "$trials_response")
+    mapfile -t trial_jsons < <(jq -c '.[]' "$trials_file_path")
 
     for trial in "${trial_jsons[@]}"; do
         trial_id=$(jq -r '.trialId' <<< "$trial")
@@ -1205,8 +1216,8 @@ update_trials_from_name() {
     # Requirement checks
     # Function logic
     local trials_response=$(get_trials_full_info)
-    echo "$trials_response" > trials_backup.txt
-    echo "Creating a backup of trials in file 'trials_backup.txt'."
+    echo "$trials_response" > "$glb_trials_backup_file_name"
+    echo "Creating a backup of trials in file '$glb_trials_backup_file_name'."
     
     source_trial_json=$(jq -c --arg name "$trial_name" '.[] | select(.displayName == $name)' <<< "$trials_response" | head -n1)
     source_trial_id=$(jq -r '.trialId' <<< "$source_trial_json")
@@ -1281,8 +1292,8 @@ fi
 # Action calls
 
 # Get trials
-if [ "$flg_get_trials" == "true" ]; then
-    get_trials_full_info "$glb_env_name"
+if [ "$flg_export_trials" == "true" ]; then
+    export_trials_to_file
 fi
 
 # Update trials from file
