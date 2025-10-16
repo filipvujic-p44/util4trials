@@ -1,5 +1,5 @@
 #!/bin/bash
-version="v1.0.4"
+version="v1.0.5"
 author="Filip Vujic"
 last_updated="16-Oct-2025"
 repo_owner="filipvujic-p44"
@@ -491,24 +491,19 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			fi
 			;;
         --int)
-            glb_env_name="int"
-            echo "Info: Environment set to 'int'."	
+            glb_env_name="int"	
             ;;
         --stg)
             glb_env_name="stg"
-            echo "Info: Environment set to 'stg'."	
             ;;
         --sbx)
             glb_env_name="sbx"
-            echo "Info: Environment set to 'sbx'."	
             ;;
         --eu)
-            glb_env_name="eu"
-            echo "Info: Environment set to 'eu'."	
+            glb_env_name="eu"	
             ;;
         --us)
-            glb_env_name="us"
-            echo "Info: Environment set to 'us'."	
+            glb_env_name="us"	
             ;;
         --set-mode)
 			ref_line_number=$(grep -n "ref_mode*" "$0" | head -n1 | cut -d':' -f1)
