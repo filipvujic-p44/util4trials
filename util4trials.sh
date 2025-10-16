@@ -1,7 +1,7 @@
 #!/bin/bash
-version="v1.0.3"
+version="v1.0.4"
 author="Filip Vujic"
-last_updated="15-Oct-2025"
+last_updated="16-Oct-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
@@ -217,7 +217,7 @@ glb_valid_env_name_values=("int" "stg" "sbx" "eu" "us")
 #ref_env_name
 glb_env_name=""
 #ref_mode
-glb_mode="LTL"
+glb_mode=""
 #ref_service
 glb_service=""
 #ref_interaction
