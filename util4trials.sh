@@ -1,5 +1,5 @@
 #!/bin/bash
-version="v1.0.4"
+version="v1.0.5"
 author="Filip Vujic"
 last_updated="16-Oct-2025"
 repo_owner="filipvujic-p44"
@@ -196,9 +196,9 @@ eu_prod_api_base_url="https://eu12.api.project44.com/onramp-connection-manager-g
 us_prod_api_base_url="https://na12.api.project44.com/onramp-connection-manager-gateway/trial"
 
 #ref_token
-glb_token=""
+glb_token="eyJraWQiOiJZVnhpTDBrVThRZGdSOWN5TjZDeCIsImFsZyI6IlJTMjU2In0.eyJjdXN0b21lcklkcFJvbGVzIjpbIkxlYWQiLCJCYXNpYyIsImx0bC1hZG1pbiIsImNhcnJpZXItdGVuYW50LWRlbGV0ZXIiLCJzaGlwcGVyLXRlbmFudC1kZWxldGVyIiwidGVuYW50LW5ldHdvcmstcm9sZS11cGRhdGVyIl0sImdpdmVuTmFtZSI6IkZpbGlwIiwiZmFtaWx5TmFtZSI6IlZ1amljIiwidGVuYW50SWQiOiIyNTYiLCJjb21wYW55VWlkIjoiZWVmZmZmNmEtNTQ3Ny00ZGI2LWI1ZGMtYTVkYTQ1M2Q3OGFmIiwibGFrZUlkIjoiMTY4MDYwNDQ2MzU3NSIsImF1dGhJZHBzIjpbIjBvYXc5NGpudXJ1ZHpnbjU4MGg3Il0sImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3NjA2MTA1OTAsImlzcyI6Imh0dHBzOi8vbmExMi5hcGkucWEtaW50ZWdyYXRpb24ucC00NC5jb20iLCJzdWIiOiJmaWxpcC52dWppY0Bwcm9qZWN0NDQuY29tIiwiZXhwIjoxNzYwNjUzNzg5LCJqdGkiOiI3MzkyZWE5ZS02OTc0LTRiNGYtYmQ2ZS05ZTRlMjIxNjUxNjIifQ.UAy38GCqyO6PiuCGqQF-uDP-5DZa6hLAXXxEC-urYjOutb5TGtqnHJODlp-IpWuej6yBRNvta5okK4CBn4fg6TI-BkkDAHbTc8a6EPsdoCSXz_F769fSgtpQxFc3TdpkzpC_imtSq7sdDTLtLGGziuCrKN3w0Ub9TmuuxowRklTXrtzXMpPzSv_LMnNqeQlUHCeaOPXn_A5KNCpyIJsEMdYMTZTtpbzRu7bBW7_n6ufRi3S63MEeZX0oPZZ2TplwLG4E2XWL4E15eHHNLchQaw-oSa25giWYcub1NXLySGp7j1RuRjgFSX8E5iX7ctCgqT7PTKLkdIQcj1P99_AlwQ"
 #ref_username
-glb_username=""
+glb_username="filip.vujic@project44.com"
 
 #ref_env_name
 glb_env_name=""
@@ -491,24 +491,19 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			fi
 			;;
         --int)
-            glb_env_name="int"
-            echo "Info: Environment set to 'int'."	
+            glb_env_name="int"	
             ;;
         --stg)
             glb_env_name="stg"
-            echo "Info: Environment set to 'stg'."	
             ;;
         --sbx)
             glb_env_name="sbx"
-            echo "Info: Environment set to 'sbx'."	
             ;;
         --eu)
-            glb_env_name="eu"
-            echo "Info: Environment set to 'eu'."	
+            glb_env_name="eu"	
             ;;
         --us)
-            glb_env_name="us"
-            echo "Info: Environment set to 'us'."	
+            glb_env_name="us"	
             ;;
         --set-mode)
 			ref_line_number=$(grep -n "ref_mode*" "$0" | head -n1 | cut -d':' -f1)
