@@ -1,7 +1,7 @@
 #!/bin/bash
-version="v1.0.5"
+version="v1.0.6"
 author="Filip Vujic"
-last_updated="16-Oct-2025"
+last_updated="29-Oct-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
@@ -1096,7 +1096,7 @@ ENVIRONMENT_NAME=""
 MODE=""
 # Interactions = [ CARRIER_PULL, CARRIER_PUSH ]
 INTERACTION=""
-# Services = [ AUTHENTICATION_RENEWAL, RATING, DISPATCH, TRACKING, IMAGING, TELEMETRY ]
+# Services = [ AUTHENTICATION_RENEWAL, RATING, DISPATCH, SHIPMENT_STATUS, IMAGING, TELEMETRY ]
 SERVICE="MY_SERVICE"
 # Carrier scac
 CARRIER="MY_SCAC"
