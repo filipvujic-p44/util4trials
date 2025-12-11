@@ -1,7 +1,7 @@
 #!/bin/bash
-version="v1.0.6"
+version="v1.0.7"
 author="Filip Vujic"
-last_updated="29-Oct-2025"
+last_updated="11-Dec-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
@@ -597,6 +597,40 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
     # Since this default shift exists, all flag handling shifts are decreased by 1
     shift
 done
+
+
+
+# Set up curl values
+
+case "$glb_env_name" in
+    us)
+        glb_cookie="ajs_user_id=$username; AuthToken_usprod=$token"
+        glb_origin="https://movement.project44.com/"
+        glb_referer="https://movement.project44.com/"
+        ;;
+
+    eu)
+        glb_cookie="ajs_user_id=$username; AuthToken_euprod=$token"
+        glb_origin="https://movement.eu.project44.com/"
+        glb_referer="https://movement.eu.project44.com/"
+        ;;
+    sbx)
+        glb_cookie="ajs_user_id=$username; AuthToken_staging=$token"
+        glb_origin="https://na14.voc.sandbox.p-44.com"
+        glb_referer="https://na14.voc.sandbox.p-44.com/"
+        ;;
+    stg)
+        glb_cookie="ajs_user_id=$username; AuthToken_euprod=$token"
+        glb_origin="https://eu14.voc.project44.com"
+        glb_referer="https://eu14.voc.project44.com/"
+        ;;
+
+    *)
+        glb_cookie="ajs_user_id=$username; AuthToken_usdev=$token"
+        glb_origin="https://movement.qa-integration.p-44.com/"
+        glb_referer="https://movement.qa-integration.p-44.com/"
+        ;;
+esac
 
 
 
@@ -1227,7 +1261,7 @@ update_trial_from_payload() {
     curl -s -o /dev/null "$base_url/$integration_string/$trial_id/updateTrial" \
         -H 'Accept: application/json' \
         -H 'Content-Type: application/json' \
-        -b "ajs_user_id=$username; AuthToken_usdev=$token" \
+        -b "$glb_cookie" \
         --data-raw "$trial_payload"
 }
 
@@ -1248,9 +1282,9 @@ get_trial() {
 
     curl -s "$base_url/$integration_string/$trial_id" \
         -H 'accept: application/json' \
-        -b "ajs_user_id=$username; AuthToken_usdev=$token" \
-        -H 'origin: https://movement.qa-integration.p-44.com' \
-        -H 'referer: https://movement.qa-integration.p-44.com/' \
+        -b "$glb_cookie" \
+        -H "origin: $glb_origin" \
+        -H "referer: $glb_referer" \
         -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
 }
 
@@ -1267,9 +1301,9 @@ get_trials_basic_info() {
 
     curl -s "$base_url/$integration_string/getTrials" \
         -H 'accept: application/json' \
-        -b "ajs_user_id=$username; AuthToken_usdev=$token" \
-        -H 'origin: https://movement.qa-integration.p-44.com' \
-        -H 'referer: https://movement.qa-integration.p-44.com/' \
+        -b "$glb_cookie" \
+        -H "origin: $glb_origin" \
+        -H "referer: $glb_referer" \
         -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
 }
 
