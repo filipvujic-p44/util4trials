@@ -1,7 +1,7 @@
 #!/bin/bash
-version="v1.0.7"
+version="v1.0.8"
 author="Filip Vujic"
-last_updated="11-Dec-2025"
+last_updated="15-Dec-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
@@ -604,35 +604,39 @@ done
 
 case "$glb_env_name" in
     us)
-        glb_cookie="ajs_user_id=$username; AuthToken_usprod=$token"
+        glb_cookie="ajs_user_id=$glb_username; AuthToken_usprod=$glb_token"
         glb_origin="https://movement.project44.com/"
         glb_referer="https://movement.project44.com/"
         ;;
 
     eu)
-        glb_cookie="ajs_user_id=$username; AuthToken_euprod=$token"
+        glb_cookie="ajs_user_id=$glb_username; AuthToken_euprod=$glb_token"
         glb_origin="https://movement.eu.project44.com/"
         glb_referer="https://movement.eu.project44.com/"
         ;;
     sbx)
-        glb_cookie="ajs_user_id=$username; AuthToken_staging=$token"
+        glb_cookie="ajs_user_id=$glb_username; AuthToken_staging=$glb_token"
         glb_origin="https://na14.voc.sandbox.p-44.com"
         glb_referer="https://na14.voc.sandbox.p-44.com/"
         ;;
     stg)
-        glb_cookie="ajs_user_id=$username; AuthToken_euprod=$token"
+        glb_cookie="ajs_user_id=$glb_username; AuthToken_euprod=$glb_token"
         glb_origin="https://eu14.voc.project44.com"
         glb_referer="https://eu14.voc.project44.com/"
         ;;
 
     *)
-        glb_cookie="ajs_user_id=$username; AuthToken_usdev=$token"
+        glb_cookie="ajs_user_id=$glb_username; AuthToken_usdev=$glb_token"
         glb_origin="https://movement.qa-integration.p-44.com/"
         glb_referer="https://movement.qa-integration.p-44.com/"
         ;;
 esac
 
+echo "$glb_cookie"
+echo "$glb_origin"
+echo "$glb_referer"
 
+# exit 0
 
 ################################################################################################
 ###################################### Check functions #########################################
