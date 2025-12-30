@@ -1,7 +1,7 @@
 #!/bin/bash
-version="v1.0.8"
+version="v1.0.9"
 author="Filip Vujic"
-last_updated="15-Dec-2025"
+last_updated="29-Dec-2025"
 repo_owner="filipvujic-p44"
 repo_name="util4trials"
 repo="https://github.com/$repo_owner/$repo_name"
@@ -151,7 +151,7 @@ ACTIONS HELP:
 Options:
 --------
     actions:
-        --export-trials                   Get all trials jsons.
+        --export-trials                   Get all trials jsons, or if trial names are provided as multi params, get only those.
         --update-trials-from-file         Update trials using input file containing trial jsons.
         --update-trials-from-name         Update trials using a specific trial name.
 
@@ -227,6 +227,7 @@ glb_carrier=""
 
 glb_trials_file_path=""
 glb_trial_name=""
+glb_trial_names=()
 glb_trials_backup_file_name="trials_backup.json"
 glb_trials_export_file_name="trials.json"
 
@@ -543,8 +544,12 @@ while [ "$1" != "" ] || [ "$#" -gt 0 ]; do
 			;;
         --export-trials)
             flg_export_trials=true
-            # glb_env_name="${2}"
-            # shift 1
+            shift # Move past the flag itself
+            # While the next argument exists and doesn't start with a '-'
+            while [[ $# -gt 0 && ! "$1" =~ ^- ]]; do
+                glb_trial_names+=("$1")
+                shift
+            done
             ;;
         --update-trials-from-file)
             flg_update_trials_from_file=true
@@ -1336,8 +1341,23 @@ get_trials_full_info() {
 export_trials_to_file() {
     echo "Info: Downloading trials data..."
     local response=$(get_trials_full_info)
-    echo "Info: Exporting trials to file '$glb_trials_export_file_name'..."
-    echo "$response" > "$glb_trials_export_file_name"
+
+    # Check if the glb_trial_names array has any elements
+    if [[ ${#glb_trial_names[@]} -gt 0 ]]; then
+        echo -n "Info: Filtering export for specific trials: "
+        printf '"%s" ' "${glb_trial_names[@]}"
+        echo "" # For a newline
+        
+        # We convert the bash array to a JSON array and use jq to filter
+        # This assumes 'response' is a JSON array and trials have a '.name' field
+        filtered_response=$(echo "$response" | jq --argjson targets "$(printf '%s\n' "${glb_trial_names[@]}" | jq -R . | jq -s .)" \
+            'map(select(.displayName | IN($targets[])))')
+        echo "Info: Exporting filtered trials to file 'filtered_$glb_trials_export_file_name'..."
+        echo "$filtered_response" > "filtered_$glb_trials_export_file_name"
+    else
+        echo "Info: Exporting trials to file '$glb_trials_export_file_name'..."
+        echo "$response" > "$glb_trials_export_file_name"
+    fi
 }
 
 # Update all trials using input file
